@@ -34,15 +34,6 @@ const pages = [
     bg: 'linear-gradient(135deg, #1a0c00 0%, #3d1f00 50%, #6b3a00 100%)',
   },
   {
-    href: '/tour3d',
-    emoji: '🎮',
-    name: '3D Виртуалды тур',
-    subtitle: 'Экожүйелерді үш өлшемде зерттеңіз',
-    color: '#9b7de8',
-    accentColor: '#c9b8f5',
-    bg: 'linear-gradient(135deg, #0d0818 0%, #1e1040 50%, #2a1860 100%)',
-  },
-  {
     href: '/map',
     emoji: '🗺️',
     name: 'Интерактивті карта',
