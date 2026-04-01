@@ -58,7 +58,7 @@ const pages = [
   {
     href: '/quiz',
     emoji: '❓',
-    name: 'Табиғат сынағы',
+    name: 'Біліміңді тексер',
     subtitle: 'ВИКТОРИНА · 50 СҰРАҚ',
     color: '#be123c',
     bg: 'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)',
