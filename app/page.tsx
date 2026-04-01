@@ -1,55 +1,75 @@
 "use client";
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
+// ── 1. Деректер базасы (Түстер мен тексттер Montserrat-қа лайықталды) ────────
 const pages = [
   {
     href: '/aral',
     emoji: '🌊',
     name: 'Арал теңізі',
-    subtitle: 'Жоғалған теңіздің трагедиясы мен үміті',
-    color: '#3b8ef1',
-    accentColor: '#93ccfb',
-    bg: 'linear-gradient(135deg, #0a1628 0%, #1a3d6b 50%, #2c5fa0 100%)',
+    subtitle: 'ЭКОЖҮЙЕ · ТРАГЕДИЯ МЕН ҮМІТ',
+    color: '#0369a1',
+    bg: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
   },
   {
     href: '/syrdarya',
     emoji: '🌿',
     name: 'Сырдария өзені',
-    subtitle: 'Тіршіліктің қайнар көзі — ұлы өзен алқабы',
-    color: '#52a869',
-    accentColor: '#a8d8b0',
-    bg: 'linear-gradient(135deg, #071a0c 0%, #0f3320 50%, #1a5c38 100%)',
+    subtitle: 'ӨЗЕН АЛҚАБЫ · ТІРШІЛІК КӨЗІ',
+    color: '#15803d',
+    bg: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
   },
   {
     href: '/desert',
     emoji: '🏜️',
     name: 'Қызылқұм шөлі',
-    subtitle: 'Өмір демін тыю мүмкін емес — тіпті шөлде де',
-    color: '#c97d1e',
-    accentColor: '#e8b96e',
-    bg: 'linear-gradient(135deg, #1a0c00 0%, #3d1f00 50%, #6b3a00 100%)',
+    subtitle: 'ШӨЛ · БІРЕГЕЙ БИОСФЕРА',
+    color: '#b45309',
+    bg: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
   },
   {
     href: '/map',
     emoji: '🗺️',
     name: 'Интерактивті карта',
-    subtitle: 'Барлық экожүйелер картада',
-    color: '#e0c875',
-    accentColor: '#f5e4a0',
-    bg: 'linear-gradient(135deg, #1a1500 0%, #3d3200 50%, #6b5800 100%)',
+    subtitle: 'БАРЛЫҚ НҮКТЕЛЕР КАРТАДА',
+    color: '#0f172a',
+    bg: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
   },
   {
     href: '/gallery',
     emoji: '🖼️',
     name: 'Галерея',
-    subtitle: 'Табиғаттың бірегей көріністері',
-    color: '#e87a5a',
-    accentColor: '#f5b8a0',
-    bg: 'linear-gradient(135deg, #1a0800 0%, #3d1500 50%, #6b2800 100%)',
+    subtitle: 'ТАБИҒАТ КӨРІНІСТЕРІ',
+    color: '#4338ca',
+    bg: 'linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%)',
+  },
+  {
+    href: '/facts',
+    emoji: '🧠',
+    name: 'Деректер мен Статистика',
+    subtitle: 'БІЛЕСІҢ БЕ? · ДИАГРАММАЛАР',
+    color: '#b45309',
+    bg: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)',
+  },
+  {
+    href: '/quiz',
+    emoji: '❓',
+    name: 'Табиғат сынағы',
+    subtitle: 'ВИКТОРИНА · 50 СҰРАҚ',
+    color: '#be123c',
+    bg: 'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)',
+  },
+  {
+    href: '/3d', // Немесе жалпы 3D турлар тізімі болса '/3d'
+    emoji: '🚀',
+    name: '3D Виртуалды тур',
+    subtitle: '360° ПАНОРАМА · ВИРТУАЛДЫ САЯХАТ',
+    color: '#4f46e5', // Indigo-600
+    bg: 'linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%)',
   },
 ]
 
@@ -72,35 +92,26 @@ export default function Home() {
     setSize();
     window.addEventListener('resize', setSize);
 
-    const particles: Array<{
-      x: number; y: number; vx: number; vy: number
-      size: number; opacity: number; color: string; type: 'sand' | 'star'
-    }> = []
+    const particles: any[] = []
+    const colors = ['#cbd5e1', '#94a3b8', '#64748b'] // Ашық фонға арналған бөлшектер
 
-    const colors = ['#c97d1e', '#e8b96e', '#f2d5a8', '#3b8ef1', '#93ccfb']
-
-    for (let i = 0; i < 120; i++) {
+    for (let i = 0; i < 100; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.3) * 0.4,
-        vy: -Math.random() * 0.3 - 0.1,
-        size: Math.random() * 2.5 + 0.5,
-        opacity: Math.random() * 0.7 + 0.1,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: -Math.random() * 0.2 - 0.1,
+        size: Math.random() * 2,
+        opacity: Math.random() * 0.5 + 0.1,
         color: colors[Math.floor(Math.random() * colors.length)],
-        type: i < 60 ? 'sand' : 'star',
       })
     }
 
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
       particles.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-
+        p.x += p.vx; p.y += p.vy;
         if (p.y < 0) p.y = canvas.height;
-        if (p.y > canvas.height) p.y = 0;
         if (p.x < 0) p.x = canvas.width;
         if (p.x > canvas.width) p.x = 0;
 
@@ -110,12 +121,9 @@ export default function Home() {
         ctx.globalAlpha = p.opacity;
         ctx.fill();
       });
-
       animationFrameId = requestAnimationFrame(animate);
     };
-
     animate();
-
     return () => {
       window.removeEventListener('resize', setSize);
       cancelAnimationFrame(animationFrameId);
@@ -123,63 +131,59 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="relative min-h-screen bg-[#05080d] overflow-hidden">
+    // Негізгі фон Montserrat және ашық сұр/ақ
+    <main className="relative min-h-screen bg-[#f8fafc] text-slate-900" style={{ fontFamily: "'Montserrat', sans-serif" }}>
       <Navbar />
       
-      {/* Анимациялық фон - 'fixed' және жоғары 'z' индекс */}
-      <canvas 
-        ref={canvasRef} 
-        className="fixed inset-0 pointer-events-none z-0"
-        style={{ background: 'transparent' }}
-      />
+      <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" />
 
-      <section
-        className="relative z-10 min-h-screen flex items-center justify-center px-6 pt-28 pb-16"
-        style={{
-          background: 'radial-gradient(circle at center, rgba(26, 42, 10, 0.4) 0%, rgba(5, 8, 13, 1) 100%)',
-        }}
-      >
+      <section className="relative z-10 min-h-screen flex items-center justify-center px-6 pt-28 pb-20">
         <div className="max-w-6xl mx-auto w-full">
-          <div className="text-center mb-14">
-            <div
-              className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full text-xs tracking-widest uppercase border border-amber-500/20 bg-amber-500/5 text-[#e8b96e]"
-            >
-              <span className="w-1.5 h-1.5 rounded-full animate-pulse bg-[#e8b96e]" />
-              Қызылорда облысы · Виртуалды экскурсия
+          
+          {/* Header */}
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-5 py-2 mb-8 rounded-full text-[10px] font-black tracking-[0.2em] uppercase bg-white shadow-sm border border-slate-100 text-slate-500">
+              <span className="w-2 h-2 rounded-full animate-pulse bg-emerald-500" />
+              ҚЫЗЫЛОРДА ОБЛЫСЫ · ВИРТУАЛДЫ ЭКСКУРСИЯ
             </div>
             
-            <h1 className="mb-5 leading-tight text-[#f5ead5] text-[clamp(2.5rem,7vw,5rem)] font-serif">
-              Туған өлке <span className="italic text-[#e8b96e]">табиғаты</span>
+            <h1 className="mb-6 leading-tight text-slate-900 text-[clamp(2.5rem,7vw,4.5rem)] font-black tracking-tighter">
+              Туған өлкенің <br/>
+              <span className="text-emerald-600 italic">табиғи экожүйелері</span>
             </h1>
             
-            <p className="max-w-[520px] mx-auto text-[1.05rem] font-light text-white/40 mb-10">
-              Бөлімді таңдаңыз — экожүйелерді, картаны және галереяны зерттеңіз
+            <p className="max-w-[600px] mx-auto text-lg font-medium text-slate-500" style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>
+              Аймақтың бай табиғатын, экожүйелерін және бірегей тарихи деректерін зерттеңіз.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {/* Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {pages.map((page) => (
               <Link key={page.href} href={page.href} className="block group">
                 <div
-                  className="relative rounded-2xl p-7 h-52 flex flex-col justify-between overflow-hidden transition-all duration-300 group-hover:-translate-y-2 border border-white/5 shadow-2xl"
+                  className="relative rounded-[2rem] p-8 h-60 flex flex-col justify-between overflow-hidden transition-all duration-500 group-hover:-translate-y-2 bg-white border border-slate-100 shadow-sm group-hover:shadow-2xl"
                   style={{ background: page.bg }}
                 >
-                  <div className="absolute right-4 bottom-4 text-8xl select-none transition-transform duration-500 group-hover:scale-110 opacity-[0.08]">
+                  {/* Decorative Emoji Background */}
+                  <div className="absolute -right-2 -bottom-2 text-9xl select-none transition-transform duration-700 group-hover:scale-125 opacity-[0.07] grayscale group-hover:grayscale-0">
                     {page.emoji}
                   </div>
                   
-                  <div>
-                    <div className="text-3xl mb-3">{page.emoji}</div>
-                    <div className="text-xs tracking-widest uppercase mb-2 font-medium" style={{ color: page.color }}>
+                  <div className="relative z-10">
+                    <div className="w-14 h-14 rounded-2xl bg-white/80 backdrop-blur-md flex items-center justify-center text-3xl mb-5 shadow-sm border border-white">
+                      {page.emoji}
+                    </div>
+                    <div className="text-[10px] tracking-[0.15em] uppercase mb-2 font-black" style={{ color: page.color }}>
                       {page.subtitle}
                     </div>
-                    <h2 className="text-xl font-bold text-[#f5ead5]">
+                    <h2 className="text-2xl font-black text-slate-900 tracking-tight">
                       {page.name}
                     </h2>
                   </div>
                   
-                  <div className="flex items-center gap-2 text-xs transition-all duration-300 group-hover:gap-3" style={{ color: page.accentColor }}>
-                    Ашу <span>→</span>
+                  <div className="relative z-10 flex items-center gap-2 text-xs font-black transition-all duration-300 group-hover:gap-4" style={{ color: page.color }}>
+                    ЗЕРТТЕУ <span className="text-lg">→</span>
                   </div>
                 </div>
               </Link>

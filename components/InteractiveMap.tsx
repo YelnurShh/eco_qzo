@@ -19,13 +19,13 @@ interface MapPoint {
   minZoom?: number // only show at this zoom level or higher
 }
 
-// ── Data ───────────────────────────────────────────────────────────────
+// ── Data (Ашық фон үшін түстер қоюлатылды) ──────────────────────────────
 const typeColors: Record<EcoType, string> = {
-  aral:      '#3b8ef1',
-  syrdarya:  '#52a869',
-  desert:    '#c97d1e',
-  city:      '#e0c875',
-  protected: '#c060d0',
+  aral:      '#0369a1', // Қою көк
+  syrdarya:  '#15803d', // Қою жасыл
+  desert:    '#b45309', // Қою сарғыш/қоңыр
+  city:      '#d97706', // Сарғыш/Янтарь
+  protected: '#6d28d9', // Қою күлгін
 }
 const typeEmojis: Record<EcoType, string> = {
   aral:      '🌊',
@@ -345,7 +345,8 @@ export default function InteractiveMap() {
       })
       leafletRef.current = map
 
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      // Ашық (Light) карта стилі (Voyager)
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
         subdomains: 'abcd',
       }).addTo(map)
@@ -361,14 +362,14 @@ export default function InteractiveMap() {
         const polygon = L.polygon(poly.coords, {
           color: color,
           weight: 2,
-          opacity: 0.7,
+          opacity: 0.8,
           fillColor: color,
-          fillOpacity: 0.12,
+          fillOpacity: 0.15,
           dashArray: '6 4',
         }).addTo(map)
 
         polygon.bindTooltip(`
-          <div style="font-family:IBM Plex Sans,sans-serif;font-size:12px;color:${color};font-weight:600;letter-spacing:.05em;">
+          <div style="font-family:'Montserrat',sans-serif;font-size:12px;color:#0f172a;font-weight:700;letter-spacing:.05em;">
             ${typeEmojis[poly.type]} ${poly.name}
           </div>
         `, { sticky: true, className: 'eco-tooltip' })
@@ -395,9 +396,7 @@ export default function InteractiveMap() {
     if (!map) return
 
     markersRef.current.forEach(({ marker, point }) => {
-      const visible =
-        activeFilter === 'all' ||
-        point.type === activeFilter
+      const visible = activeFilter === 'all' || point.type === activeFilter
 
       if (visible) {
         if (!map.hasLayer(marker)) marker.addTo(map)
@@ -426,20 +425,21 @@ export default function InteractiveMap() {
 
       const icon = L.divIcon({
         html: `
-          <div class="eco-marker" style="
+          <div class="eco-marker bg-white" style="
             width:38px;height:38px;border-radius:50%;
-            background:${color}18;
             border:2px solid ${color};
             display:flex;align-items:center;justify-content:center;
             font-size:17px;
-            box-shadow:0 0 16px ${color}55, inset 0 0 8px ${color}22;
+            box-shadow:0 4px 12px ${color}50;
             cursor:pointer;
             transition:transform .2s;
+            z-index: 10;
           ">${emoji}</div>
           <div style="
             position:absolute;top:-6px;left:-6px;right:-6px;bottom:-6px;
-            border-radius:50%;border:1.5px solid ${color}40;
+            border-radius:50%;border:1.5px solid ${color}60;
             animation:ecoP 2.2s ease-out infinite;
+            z-index: 1;
           "></div>
         `,
         className: '',
@@ -481,279 +481,246 @@ export default function InteractiveMap() {
   }
 
   const threatColor = (t?: string) => {
-    if (!t) return '#888'
-    if (t.includes('Критик')) return '#e85555'
-    if (t.includes('Жоғары')) return '#e8a030'
-    if (t.includes('Орташа')) return '#e8d030'
-    if (t.includes('Қорғал') || t.includes('Қалпына') || t.includes('Бақыл')) return '#52c869'
-    return '#93ccfb'
+    if (!t) return '#64748b' // slate-500
+    if (t.includes('Критик') || t.includes('Апат')) return '#e11d48' // rose-600
+    if (t.includes('Жоғары')) return '#d97706' // amber-600
+    if (t.includes('Орташа')) return '#ca8a04' // yellow-600
+    if (t.includes('Қорғал') || t.includes('Қалпына') || t.includes('Бақыл') || t.includes('Жақсы')) return '#16a34a' // green-600
+    return '#0284c7' // sky-600
   }
 
   return (
-    <section id="map" className="py-20 px-6 relative" style={{ background: '#0a0805' }}>
-      <div className="max-w-7xl mx-auto">
+    <div className="w-full relative bg-transparent" style={{ fontFamily: "'Montserrat', sans-serif" }}>
 
-        {/* Header */}
-        <div className="text-center mb-10">
-          <div
-            className="inline-block px-4 py-1.5 rounded-full text-xs tracking-widest uppercase mb-4"
-            style={{ background: 'rgba(59,142,241,0.1)', border: '1px solid rgba(59,142,241,0.25)', color: '#93ccfb', fontFamily: 'IBM Plex Sans, sans-serif' }}
-          >
-            Интерактивті карта
-          </div>
-          <h2 className="mb-3" style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(1.8rem,4vw,3rem)', color: '#f5ead5' }}>
-            Экожүйелер{' '}
-            <em className="not-italic" style={{ color: '#93ccfb' }}>картасы</em>
-          </h2>
-          <p style={{ color: 'rgba(245,234,213,0.5)', fontFamily: 'IBM Plex Sans, sans-serif', fontSize: '0.9rem' }}>
-            Белгіні басыңыз — толық ақпарат алыңыз · Масштаб өскен сайын жаңа нүктелер пайда болады
-          </p>
-        </div>
-
-        {/* Filter bar */}
-        <div className="flex flex-wrap justify-center gap-2 mb-5">
+      {/* Filter bar */}
+      <div className="flex flex-wrap justify-center gap-2 md:gap-3 mb-6">
+        <button
+          onClick={() => setActiveFilter('all')}
+          className="px-5 py-2.5 rounded-full text-xs font-bold transition-all duration-300 shadow-sm"
+          style={activeFilter === 'all'
+            ? { background: '#0f172a', color: '#fff' } // slate-900
+            : { background: '#ffffff', border: '1px solid #e2e8f0', color: '#475569' }} // slate-600
+        >
+          🗺 Барлығы
+        </button>
+        {(Object.keys(typeColors) as EcoType[]).map((type) => (
           <button
-            onClick={() => setActiveFilter('all')}
-            className="px-4 py-2 rounded-full text-xs font-medium transition-all duration-200"
-            style={activeFilter === 'all'
-              ? { background: '#f5ead5', color: '#0d0a05', fontFamily: 'IBM Plex Sans, sans-serif' }
-              : { background: 'rgba(245,234,213,0.08)', border: '1px solid rgba(245,234,213,0.2)', color: 'rgba(245,234,213,0.6)', fontFamily: 'IBM Plex Sans, sans-serif' }}
+            key={type}
+            onClick={() => setActiveFilter(type)}
+            className="px-5 py-2.5 rounded-full text-xs font-bold transition-all duration-300 shadow-sm"
+            style={activeFilter === type
+              ? { background: typeColors[type], color: '#fff', boxShadow: `0 4px 15px ${typeColors[type]}40` }
+              : { background: '#ffffff', border: '1px solid #e2e8f0', color: typeColors[type] }}
           >
-            🗺 Барлығы
+            {typeEmojis[type]} {typeLabels[type]}
           </button>
-          {(Object.keys(typeColors) as EcoType[]).map((type) => (
-            <button
-              key={type}
-              onClick={() => setActiveFilter(type)}
-              className="px-4 py-2 rounded-full text-xs font-medium transition-all duration-200"
-              style={activeFilter === type
-                ? { background: typeColors[type], color: '#fff', fontFamily: 'IBM Plex Sans, sans-serif', boxShadow: `0 0 16px ${typeColors[type]}60` }
-                : { background: `${typeColors[type]}12`, border: `1px solid ${typeColors[type]}30`, color: typeColors[type], fontFamily: 'IBM Plex Sans, sans-serif' }}
-            >
-              {typeEmojis[type]} {typeLabels[type]}
-            </button>
-          ))}
-        </div>
+        ))}
+      </div>
 
-        {/* Main layout: map + sidebar */}
-        <div className="flex gap-4 flex-col lg:flex-row">
+      {/* Main layout: map + sidebar */}
+      <div className="flex gap-4 flex-col lg:flex-row relative">
 
-          {/* Map */}
-          <div
-            className="relative rounded-2xl overflow-hidden flex-1"
-            style={{ height: '560px', border: '1px solid rgba(59,142,241,0.18)', boxShadow: '0 0 60px rgba(59,142,241,0.07)', minWidth: 0 }}
-          >
-            {!mapLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center z-10" style={{ background: '#0d1a28' }}>
-                <div className="text-center">
-                  <div className="text-4xl mb-3">🗺️</div>
-                  <div style={{ color: 'rgba(245,234,213,0.5)', fontFamily: 'IBM Plex Sans, sans-serif', fontSize: '13px' }}>Карта жүктелуде...</div>
-                </div>
+        {/* Map */}
+        <div
+          className="relative rounded-3xl overflow-hidden flex-1 border border-slate-200 shadow-inner bg-slate-50"
+          style={{ height: '600px', minWidth: 0 }}
+        >
+          {!mapLoaded && (
+            <div className="absolute inset-0 flex items-center justify-center z-10 bg-slate-100">
+              <div className="text-center animate-pulse">
+                <div className="text-4xl mb-3">🗺️</div>
+                <div className="text-slate-500 font-bold text-sm tracking-widest uppercase">Карта жүктелуде...</div>
               </div>
-            )}
-            <div ref={mapRef} className="w-full h-full" />
-
-            {/* Zoom info badge */}
-            <div
-              className="absolute bottom-4 right-4 px-3 py-1.5 rounded-full text-xs backdrop-blur-sm pointer-events-none"
-              style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(245,234,213,0.5)', fontFamily: 'IBM Plex Sans, sans-serif' }}
-            >
-              Масштаб: {currentZoom} · {currentZoom < 7 ? 'Жақындатыңыз — жаңа нүктелер пайда болады' : 'Барлық нүктелер көрінеді'}
             </div>
+          )}
+          <div ref={mapRef} className="w-full h-full z-0 relative" />
 
-            {/* Reset button */}
-            <button
-              onClick={resetView}
-              className="absolute top-4 left-4 px-3 py-1.5 rounded-full text-xs backdrop-blur-sm transition-all hover:opacity-100"
-              style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(245,234,213,0.7)', fontFamily: 'IBM Plex Sans, sans-serif', opacity: 0.85 }}
-            >
-              ⌂ Бастапқы көрініс
-            </button>
+          {/* Zoom info badge */}
+          <div
+            className="absolute bottom-6 right-6 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md pointer-events-none z-10 shadow-md"
+            style={{ background: 'rgba(255,255,255,0.9)', border: '1px solid rgba(0,0,0,0.05)', color: '#475569' }}
+          >
+            Масштаб: <span className="text-slate-900">{currentZoom}</span> · {currentZoom < 7 ? 'Жақындатыңыз' : 'Барлық нүкте көрінеді'}
           </div>
 
-          {/* Sidebar: point detail */}
-          <div
-            className="lg:w-80 rounded-2xl overflow-hidden flex flex-col"
-            style={{ border: '1px solid rgba(245,234,213,0.08)', background: '#100d08', minHeight: '560px' }}
+          {/* Reset button */}
+          <button
+            onClick={resetView}
+            className="absolute top-6 left-6 px-4 py-2.5 rounded-full text-xs font-bold backdrop-blur-md transition-all hover:-translate-y-0.5 z-10 shadow-lg"
+            style={{ background: 'rgba(255,255,255,0.95)', border: '1px solid rgba(0,0,0,0.05)', color: '#0f172a' }}
           >
-            {selectedPoint ? (
-              <div className="flex flex-col h-full">
-                {/* Point header */}
-                <div
-                  className="p-5"
-                  style={{ background: `linear-gradient(135deg, ${typeColors[selectedPoint.type]}18, ${typeColors[selectedPoint.type]}08)`, borderBottom: `1px solid ${typeColors[selectedPoint.type]}20` }}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="text-3xl">{typeEmojis[selectedPoint.type]}</div>
-                    <button
-                      onClick={() => setSelectedPoint(null)}
-                      className="text-xs px-2 py-1 rounded-full"
-                      style={{ background: 'rgba(245,234,213,0.08)', color: 'rgba(245,234,213,0.4)', fontFamily: 'IBM Plex Sans, sans-serif' }}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                  <div className="text-xs tracking-widest uppercase mb-1" style={{ color: typeColors[selectedPoint.type], fontFamily: 'IBM Plex Sans, sans-serif' }}>
-                    {typeLabels[selectedPoint.type]}
-                  </div>
-                  <h3 className="font-bold mb-1" style={{ fontFamily: 'Playfair Display, serif', color: '#f5ead5', fontSize: '1.15rem', lineHeight: 1.3 }}>
-                    {selectedPoint.name}
-                  </h3>
-                  {selectedPoint.threat && (
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs mt-1"
-                      style={{ background: `${threatColor(selectedPoint.threat)}18`, border: `1px solid ${threatColor(selectedPoint.threat)}40`, color: threatColor(selectedPoint.threat), fontFamily: 'IBM Plex Sans, sans-serif' }}>
-                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: threatColor(selectedPoint.threat) }} />
-                      {selectedPoint.threat}
-                    </div>
-                  )}
-                </div>
+            ⌂ БАСТАПҚЫ КӨРІНІС
+          </button>
+        </div>
 
-                {/* Scrollable content */}
-                <div className="flex-1 overflow-y-auto p-5 space-y-4" style={{ scrollbarWidth: 'thin' }}>
-
-                  {/* Description */}
-                  <p className="text-sm leading-relaxed" style={{ color: 'rgba(245,234,213,0.65)', fontFamily: 'IBM Plex Sans, sans-serif' }}>
-                    {selectedPoint.description}
-                  </p>
-
-                  {/* Area */}
-                  {selectedPoint.area && selectedPoint.area !== '—' && (
-                    <div className="rounded-xl p-3" style={{ background: `${typeColors[selectedPoint.type]}0a`, border: `1px solid ${typeColors[selectedPoint.type]}20` }}>
-                      <div className="text-xs mb-0.5" style={{ color: 'rgba(245,234,213,0.35)', fontFamily: 'IBM Plex Sans, sans-serif' }}>Аумақ</div>
-                      <div className="text-sm font-semibold" style={{ color: typeColors[selectedPoint.type], fontFamily: 'IBM Plex Sans, sans-serif' }}>{selectedPoint.area}</div>
-                    </div>
-                  )}
-
-                  {/* Flora */}
-                  {selectedPoint.flora && selectedPoint.flora.length > 0 && (
-                    <div>
-                      <div className="text-xs font-semibold mb-2 flex items-center gap-1.5" style={{ color: '#52a869', fontFamily: 'IBM Plex Sans, sans-serif' }}>
-                        🌱 Флора
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {selectedPoint.flora.map((f) => (
-                          <span key={f} className="text-xs px-2.5 py-1 rounded-full"
-                            style={{ background: 'rgba(82,168,105,0.12)', border: '1px solid rgba(82,168,105,0.25)', color: '#a8d8b0', fontFamily: 'IBM Plex Sans, sans-serif' }}>
-                            {f}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Fauna */}
-                  {selectedPoint.fauna && selectedPoint.fauna.length > 0 && (
-                    <div>
-                      <div className="text-xs font-semibold mb-2 flex items-center gap-1.5" style={{ color: '#e8a030', fontFamily: 'IBM Plex Sans, sans-serif' }}>
-                        🦅 Фауна
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {selectedPoint.fauna.map((f) => (
-                          <span key={f} className="text-xs px-2.5 py-1 rounded-full"
-                            style={{ background: 'rgba(232,160,48,0.12)', border: '1px solid rgba(232,160,48,0.25)', color: '#f5c870', fontFamily: 'IBM Plex Sans, sans-serif' }}>
-                            {f}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Fact */}
-                  {selectedPoint.fact && (
-                    <div className="rounded-xl p-3" style={{ background: 'rgba(245,234,213,0.04)', border: '1px solid rgba(245,234,213,0.1)' }}>
-                      <div className="text-xs mb-1" style={{ color: 'rgba(245,234,213,0.35)', fontFamily: 'IBM Plex Sans, sans-serif' }}>💡 Қызықты факт</div>
-                      <p className="text-xs leading-relaxed" style={{ color: 'rgba(245,234,213,0.6)', fontFamily: 'IBM Plex Sans, sans-serif', fontStyle: 'italic' }}>
-                        {selectedPoint.fact}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Fly to button */}
+        {/* Sidebar: point detail */}
+        <div
+          className="lg:w-96 rounded-3xl overflow-hidden flex flex-col bg-white border border-slate-200 shadow-xl relative z-10"
+          style={{ minHeight: '600px' }}
+        >
+          {selectedPoint ? (
+            <div className="flex flex-col h-full">
+              {/* Point header */}
+              <div
+                className="p-6 border-b"
+                style={{ background: `linear-gradient(135deg, ${typeColors[selectedPoint.type]}10, #ffffff)`, borderColor: `${typeColors[selectedPoint.type]}20` }}
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="text-4xl bg-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm border border-slate-100">{typeEmojis[selectedPoint.type]}</div>
                   <button
-                    onClick={() => flyTo(selectedPoint.coords, 9)}
-                    className="w-full py-2.5 rounded-xl text-xs font-medium transition-all hover:opacity-90"
-                    style={{ background: typeColors[selectedPoint.type], color: '#fff', fontFamily: 'IBM Plex Sans, sans-serif', boxShadow: `0 0 20px ${typeColors[selectedPoint.type]}40` }}
+                    onClick={() => setSelectedPoint(null)}
+                    className="text-slate-400 hover:text-slate-900 hover:bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center transition-colors font-bold"
                   >
-                    📍 Картада табу
+                    ✕
                   </button>
                 </div>
+                <div className="text-[10px] font-black tracking-[0.2em] uppercase mb-2" style={{ color: typeColors[selectedPoint.type] }}>
+                  {typeLabels[selectedPoint.type]}
+                </div>
+                <h3 className="font-black text-slate-900 text-2xl leading-tight mb-2">
+                  {selectedPoint.name}
+                </h3>
+                {selectedPoint.threat && (
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold mt-2"
+                    style={{ background: `${threatColor(selectedPoint.threat)}15`, border: `1px solid ${threatColor(selectedPoint.threat)}30`, color: threatColor(selectedPoint.threat) }}>
+                    <span className="w-2 h-2 rounded-full" style={{ background: threatColor(selectedPoint.threat) }} />
+                    {selectedPoint.threat}
+                  </div>
+                )}
               </div>
-            ) : (
-              // Empty state + quick nav
-              <div className="p-5 flex flex-col h-full">
-                <div className="text-center mb-6 pt-4">
-                  <div className="text-4xl mb-3">📍</div>
-                  <p className="text-sm" style={{ color: 'rgba(245,234,213,0.4)', fontFamily: 'IBM Plex Sans, sans-serif' }}>
-                    Картадан нүктені басыңыз — толық ақпарат осы жерде шығады
-                  </p>
-                </div>
 
-                <div className="text-xs font-semibold mb-3" style={{ color: 'rgba(245,234,213,0.3)', fontFamily: 'IBM Plex Sans, sans-serif', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                  Жылдам навигация
-                </div>
+              {/* Scrollable content */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-6" style={{ scrollbarWidth: 'thin' }}>
 
-                <div className="space-y-2 overflow-y-auto flex-1" style={{ scrollbarWidth: 'thin' }}>
-                  {ALL_POINTS.filter(p => !p.minZoom || currentZoom >= p.minZoom)
-                    .filter(p => activeFilter === 'all' || p.type === activeFilter)
-                    .map((point) => (
-                      <button
-                        key={point.id}
-                        onClick={() => { flyTo(point.coords, 9); setSelectedPoint(point) }}
-                        className="w-full text-left px-3 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-3 hover:opacity-90"
-                        style={{ background: `${typeColors[point.type]}0d`, border: `1px solid ${typeColors[point.type]}20` }}
-                      >
-                        <span className="text-base flex-shrink-0">{typeEmojis[point.type]}</span>
-                        <div className="min-w-0">
-                          <div className="text-xs font-medium truncate" style={{ color: '#f5ead5', fontFamily: 'IBM Plex Sans, sans-serif' }}>{point.name}</div>
-                          {point.threat && (
-                            <div className="text-xs" style={{ color: threatColor(point.threat), fontFamily: 'IBM Plex Sans, sans-serif' }}>{point.threat}</div>
-                          )}
-                        </div>
-                      </button>
-                    ))}
-                </div>
+                {/* Description */}
+                <p className="text-sm leading-relaxed font-medium text-slate-600" style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>
+                  {selectedPoint.description}
+                </p>
+
+                {/* Area */}
+                {selectedPoint.area && selectedPoint.area !== '—' && (
+                  <div className="rounded-2xl p-4 bg-slate-50 border border-slate-100 shadow-sm">
+                    <div className="text-[10px] font-bold uppercase tracking-wider mb-1 text-slate-400">Аумақ</div>
+                    <div className="text-sm font-black" style={{ color: typeColors[selectedPoint.type] }}>{selectedPoint.area}</div>
+                  </div>
+                )}
+
+                {/* Flora */}
+                {selectedPoint.flora && selectedPoint.flora.length > 0 && (
+                  <div>
+                    <div className="text-xs font-black mb-3 flex items-center gap-2 text-emerald-700 uppercase tracking-wider">
+                      🌱 Флора
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedPoint.flora.map((f) => (
+                        <span key={f} className="text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 shadow-sm" style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>
+                          {f}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Fauna */}
+                {selectedPoint.fauna && selectedPoint.fauna.length > 0 && (
+                  <div>
+                    <div className="text-xs font-black mb-3 flex items-center gap-2 text-amber-700 uppercase tracking-wider">
+                      🦅 Фауна
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedPoint.fauna.map((f) => (
+                        <span key={f} className="text-xs font-bold px-3 py-1.5 rounded-full bg-amber-50 border border-amber-100 text-amber-700 shadow-sm" style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>
+                          {f}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Fact */}
+                {selectedPoint.fact && (
+                  <div className="rounded-2xl p-4 bg-slate-50 border-l-4 shadow-sm" style={{ borderColor: typeColors[selectedPoint.type] }}>
+                    <div className="text-[10px] font-bold uppercase tracking-wider mb-2 text-slate-400">💡 Қызықты факт</div>
+                    <p className="text-sm leading-relaxed font-semibold text-slate-700 italic" style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>
+                      "{selectedPoint.fact}"
+                    </p>
+                  </div>
+                )}
+
+                {/* Fly to button */}
+                <button
+                  onClick={() => flyTo(selectedPoint.coords, 9)}
+                  className="w-full py-3.5 rounded-xl text-xs font-bold transition-all hover:-translate-y-1 shadow-md text-white mt-4"
+                  style={{ background: typeColors[selectedPoint.type] }}
+                >
+                  📍 КАРТАДАН КӨРСЕТУ
+                </button>
               </div>
-            )}
-          </div>
-        </div>
-
-        {/* Bottom legend */}
-        <div className="flex flex-wrap justify-center gap-3 mt-5">
-          {(Object.keys(typeColors) as EcoType[]).map((type) => (
-            <div
-              key={type}
-              className="flex items-center gap-2 px-4 py-2 rounded-full text-xs"
-              style={{ background: `${typeColors[type]}10`, border: `1px solid ${typeColors[type]}28`, color: typeColors[type], fontFamily: 'IBM Plex Sans, sans-serif' }}
-            >
-              <span className="w-2 h-2 rounded-full" style={{ background: typeColors[type] }} />
-              {typeEmojis[type]} {typeLabels[type]}
             </div>
-          ))}
+          ) : (
+            // Empty state + quick nav
+            <div className="p-6 flex flex-col h-full">
+              <div className="text-center mb-8 pt-6">
+                <div className="text-5xl mb-4 opacity-50">🗺️</div>
+                <p className="text-sm font-semibold text-slate-500" style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>
+                  Картадан кез келген белгіні басыңыз.
+                  <br />Толық ақпарат осында пайда болады.
+                </p>
+              </div>
+
+              <div className="text-[10px] font-black mb-4 text-slate-400 tracking-[0.1em] uppercase border-b border-slate-100 pb-2">
+                Жылдам навигация
+              </div>
+
+              <div className="space-y-2 overflow-y-auto flex-1 pr-2" style={{ scrollbarWidth: 'thin' }}>
+                {ALL_POINTS.filter(p => !p.minZoom || currentZoom >= p.minZoom)
+                  .filter(p => activeFilter === 'all' || p.type === activeFilter)
+                  .map((point) => (
+                    <button
+                      key={point.id}
+                      onClick={() => { flyTo(point.coords, 9); setSelectedPoint(point) }}
+                      className="w-full text-left px-4 py-3 rounded-2xl transition-all duration-200 flex items-center gap-4 hover:bg-slate-50 border border-transparent hover:border-slate-200 group"
+                    >
+                      <span className="text-2xl flex-shrink-0 drop-shadow-sm transition-transform group-hover:scale-110">{typeEmojis[point.type]}</span>
+                      <div className="min-w-0">
+                        <div className="text-sm font-bold text-slate-800 truncate" style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>{point.name}</div>
+                        {point.threat && (
+                          <div className="text-[10px] font-bold mt-0.5 uppercase tracking-wide" style={{ color: threatColor(point.threat) }}>{point.threat}</div>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       <style>{`
         @keyframes ecoP {
-          0%   { transform: scale(1); opacity: 0.7; }
+          0%   { transform: scale(1); opacity: 0.8; }
           100% { transform: scale(2.2); opacity: 0; }
         }
+        /* Ашық фонға арналған Tooltip (Қалқымалы жазу) */
         .eco-tooltip {
-          background: #100d08 !important;
-          border: 1px solid rgba(245,234,213,0.15) !important;
-          color: #f5ead5 !important;
-          font-family: 'IBM Plex Sans', sans-serif !important;
-          border-radius: 8px !important;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
+          background: #ffffff !important;
+          border: 1px solid #e2e8f0 !important;
+          color: #0f172a !important;
+          border-radius: 12px !important;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+          padding: 6px 12px !important;
         }
-        .eco-tooltip::before { display: none !important; }
+        .eco-tooltip::before { border-top-color: #ffffff !important; }
+        
+        /* Лифлеттің стандартты попабын (қажет болса) ашық ету */
         .leaflet-popup-content-wrapper {
-          background: #100d08 !important;
-          border: 1px solid rgba(245,234,213,0.12) !important;
-          border-radius: 14px !important;
-          box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+          background: #ffffff !important;
+          border: 1px solid #f1f5f9 !important;
+          border-radius: 16px !important;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
         }
-        .leaflet-popup-tip { background: #100d08 !important; }
+        .leaflet-popup-tip { background: #ffffff !important; }
       `}</style>
-    </section>
+    </div>
   )
 }

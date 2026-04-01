@@ -1,50 +1,42 @@
 export default function Footer() {
   return (
     <footer
-      className="py-12 px-6 border-t"
-      style={{ borderColor: 'rgba(201,125,30,0.15)', background: '#080604' }}
+      className="py-14 px-6 border-t border-slate-200 bg-white"
+      style={{ fontFamily: "'Montserrat', sans-serif" }}
     >
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
-          {/* Brand */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+          
+          {/* Логотип пен сипаттама (Brand) */}
           <div>
-            <div
-              className="flex items-center gap-3 mb-4"
-              style={{ fontFamily: 'Playfair Display, serif' }}
-            >
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-sand-400 to-sand-600 flex items-center justify-center text-lg">
+            <div className="flex items-center gap-4 mb-5">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-2xl shadow-sm">
                 🌿
               </div>
               <div>
-                <div className="text-sand-300 font-semibold leading-none">Туған елке</div>
-                <div className="text-sand-600 text-xs tracking-widest uppercase">Табиғаты</div>
+                <div className="text-slate-900 font-black leading-none text-xl mb-1">Туған өлке</div>
+                <div className="text-emerald-600 text-[10px] font-black tracking-[0.2em] uppercase">Табиғаты</div>
               </div>
             </div>
             <p
-              className="text-sm leading-relaxed"
-              style={{
-                color: 'rgba(245,234,213,0.4)',
-                fontFamily: 'IBM Plex Sans, sans-serif',
-              }}
+              className="text-sm leading-relaxed text-slate-500 font-medium max-w-sm"
+              style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}
             >
               Қызылорда облысының бірегей экожүйелерін танып-білуге арналған виртуалды экскурсия жобасы.
             </p>
           </div>
 
-          {/* Links */}
+          {/* Навигациялық сілтемелер (Links) */}
           <div>
-            <h4
-              className="text-sm font-semibold mb-4 tracking-wide"
-              style={{ color: '#e8b96e', fontFamily: 'IBM Plex Sans, sans-serif' }}
-            >
+            <h4 className="text-xs font-black mb-6 tracking-widest uppercase text-slate-400">
               Бөлімдер
             </h4>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {['Экожүйелер', 'Интерактивті карта', 'Галерея', 'Ғылыми деректер'].map((item) => (
                 <li key={item}>
                   <span
-                    className="text-sm cursor-pointer hover:text-sand-300 transition-colors"
-                    style={{ color: 'rgba(245,234,213,0.4)', fontFamily: 'IBM Plex Sans, sans-serif' }}
+                    className="text-sm font-bold cursor-pointer text-slate-600 hover:text-emerald-600 transition-colors"
+                    style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}
                   >
                     {item}
                   </span>
@@ -53,24 +45,26 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Ecosystems */}
+          {/* Экожүйелер (Ecosystems) */}
           <div>
-            <h4
-              className="text-sm font-semibold mb-4 tracking-wide"
-              style={{ color: '#93ccfb', fontFamily: 'IBM Plex Sans, sans-serif' }}
-            >
+            <h4 className="text-xs font-black mb-6 tracking-widest uppercase text-slate-400">
               Экожүйелер
             </h4>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {[
-                { label: '🌊 Арал теңізі', color: '#3b8ef1' },
-                { label: '🌿 Сырдария өзені', color: '#52a869' },
-                { label: '🏜️ Қызылқұм шөлі', color: '#c97d1e' },
+                { label: '🌊 Арал теңізі', color: '#0369a1', bg: '#f0f9ff', border: '#bae6fd' },
+                { label: '🌿 Сырдария өзені', color: '#15803d', bg: '#f0fdf4', border: '#bbf7d0' },
+                { label: '🏜️ Қызылқұм шөлі', color: '#b45309', bg: '#fffbeb', border: '#fde68a' },
               ].map((item) => (
-                <li key={item.label}>
+                <li key={item.label} className="flex items-center">
                   <span
-                    className="text-sm"
-                    style={{ color: item.color + '90', fontFamily: 'IBM Plex Sans, sans-serif' }}
+                    className="text-xs font-bold px-3 py-1.5 rounded-xl border transition-all hover:-translate-y-0.5 cursor-default shadow-sm"
+                    style={{
+                      color: item.color,
+                      backgroundColor: item.bg,
+                      borderColor: item.border,
+                      fontFamily: "'IBM Plex Sans', sans-serif",
+                    }}
                   >
                     {item.label}
                   </span>
@@ -80,22 +74,21 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom bar */}
+        {/* Төменгі жолақ (Bottom bar) */}
         <div
-          className="pt-6 border-t flex flex-col md:flex-row items-center justify-between gap-4"
-          style={{ borderColor: 'rgba(201,125,30,0.1)' }}
+          className="pt-8 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4"
         >
           <p
-            className="text-xs"
-            style={{ color: 'rgba(245,234,213,0.25)', fontFamily: 'IBM Plex Sans, sans-serif' }}
+            className="text-xs font-semibold text-slate-400"
+            style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}
           >
-            © 2025 Туған елке табиғаты · Қызылорда облысы · Экологиялық білім беру жобасы
+            © 2026 Туған өлке табиғаты · Қызылорда облысы · Экологиялық білім беру жобасы
           </p>
           <p
-            className="text-xs"
-            style={{ color: 'rgba(245,234,213,0.2)', fontFamily: 'IBM Plex Sans, sans-serif' }}
+            className="text-xs font-bold text-slate-300"
+            style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}
           >
-            «Туған елке табиғаты» бағыты · Next.js + TypeScript
+            Next.js + TypeScript
           </p>
         </div>
       </div>

@@ -1,6 +1,8 @@
 {
-  "/map/page": "app/map/page.js",
-  "/syrdarya/page": "app/syrdarya/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/3d/page": "app/3d/page.js",
   "/page": "app/page.js",
-  "/gallery/page": "app/gallery/page.js"
+  "/3d/desert/page": "app/3d/desert/page.js",
+  "/3d/aral/page": "app/3d/aral/page.js",
+  "/syrdarya/page": "app/syrdarya/page.js"
 }
